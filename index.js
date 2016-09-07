@@ -7,7 +7,6 @@ const glob = require('glob');
 const path = require('path');
 const merge = require('merge');
 const logger = require('winston');
-const sortOrder = ['polyfill', 'vendor', 'app'];
 
 /**
  * Returns an array of assets (files + metadata).
@@ -15,16 +14,30 @@ const sortOrder = ['polyfill', 'vendor', 'app'];
  * @param {string} dist
  * @returns {Array} assets
  */
-const getDistAssets = (dist) => {
-  const assets = glob.sync(dist + '/*.js').map((file) => {
+const getDistAssets = (dist) =>
+  glob.sync(dist + '/*.js').map((file) => {
     const parsed = path.parse(file);
     return merge(parsed, {
       fullpath: file,
       hashedName: parsed.name + parsed.ext
     });
   });
-  return assets.sort((a, b) =>
-    sortOrder.indexOf(a.name.split('.')[0]) - sortOrder.indexOf(b.name.split('.')[0]));
+
+/**
+ * Sorts the assets.
+ * This should arguably come from metadata.
+ * @name sortDistAssets
+ * @param {string} dist
+ * @returns {Array} assets
+ */
+const getDistAssetsSorted = (dist) => {
+  const sortOrder = ['polyfill', 'vendor', 'app'];
+  const assets = getDistAssets(dist);
+  return assets.sort((a, b) => {
+    const aName = a.name.split('.')[0];
+    const bName = b.name.split('.')[0];
+    return sortOrder.indexOf(aName) - sortOrder.indexOf(bName);
+  });
 };
 
 /**
@@ -158,7 +171,7 @@ const deploy = () => {
   const spaName = spaJson.name;
 
   const skyuxVersion = getSkyuxVersion();
-  const assets = getDistAssets('dist');
+  const assets = getDistAssetsSorted('dist');
 
   if (assets.length === 0) {
     logger.error('Unable to find any matching assets in SPA %s.', spaName);
