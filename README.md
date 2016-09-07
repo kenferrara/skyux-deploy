@@ -1,6 +1,23 @@
 # sky-pages-deploy
 Deployment package for sky-pages
 
-`npm install blackbaud/sky-pages-deploy`
+## Install
 
-`node ./node_modules/blackbaud-sky-pages-deploy/index.js`
+`npm install -g blackbaud/sky-pages-deploy`
+
+## Usage
+
+`sky-pages-deploy`
+
+## Options
+
+All of the following options are required and overridable via the CLI.
+
+| Option                | Default |
+| --------------------- | ------- |
+| name                  | `name` property in `package.json` |
+| version               | `version` property in `package.json` |
+| skyuxVersion          | `_requested.spec` in the `package.json` file in `./node_modules/blackbaud-skyux2` |
+| azureStorageAccount   | `null`  |
+| azureStorageAccessKey | `null`  |
+| azureStorageTableName | `spa`   |

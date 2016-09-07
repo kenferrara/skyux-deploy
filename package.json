@@ -2,9 +2,10 @@
   "name": "blackbaud-sky-pages-deploy",
   "version": "1.0.0",
   "description": "Deployment package for sky-pages",
-  "main": "index.js",
+  "bin": {
+    "sky-pages-deploy": "bin/index.js"
+  },
   "scripts": {
-    "deploy": "node index.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
@@ -22,6 +23,7 @@
     "azure-storage": "1.3.0",
     "glob": "7.0.6",
     "merge": "1.2.0",
+    "minimist": "1.2.0",
     "winston": "2.2.0"
   }
 }

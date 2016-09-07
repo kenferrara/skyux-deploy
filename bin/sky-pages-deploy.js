@@ -6,6 +6,7 @@ const fs = require('fs');
 const glob = require('glob');
 const path = require('path');
 const merge = require('merge');
+const minimist = require('minimist');
 const logger = require('winston');
 
 /**
@@ -58,27 +59,33 @@ const rejectIfError = (reject, error) => {
  * For each asset, register it to blob storage.
  * @name registerAssetsToBlob
  * @param {Array} assets
- * @name {string} name
+ * @param {Object} settings
  * @returns {Function} promise
  */
-const registerAssetsToBlob = (assets, name) => {
-  const blob = azure.createBlobService();
+const registerAssetsToBlob = (assets, settings) => {
+  const blob = azure.createBlobService(
+    settings.azureStorageAccount,
+    settings.azureStorageAccessKey
+  );
   const acl = { publicAccessLevel: 'blob' };
   const insert = (asset) => new Promise((resolve, reject) => {
     logger.info('Creating blob for %s', asset.name);
 
     const content = fs.readFileSync(asset.fullpath, { encoding: 'utf8' });
-    blob.createBlockBlobFromText(name, asset.hashedName, content, (error) => {
+    blob.createBlockBlobFromText(settings.name, asset.hashedName, content, (error) => {
       rejectIfError(reject, error);
       resolve();
     });
   });
 
   return new Promise((fnResolve, fnReject) => {
-    logger.info('Verifying container %s', name);
-    blob.createContainerIfNotExists(name, acl, (error) => {
+    logger.info('Verifying container %s', settings.name);
+    blob.createContainerIfNotExists(settings.name, acl, (error) => {
       rejectIfError(fnReject, error);
-      Promise.all(assets.map(insert)).then(fnResolve, fnReject);
+      Promise.all(assets.map(insert)).then(() => {
+        logger.info('SPA %s registered in blob storage.', settings.name);
+        fnResolve();
+      }, fnReject);
     });
   });
 };
@@ -87,41 +94,31 @@ const registerAssetsToBlob = (assets, name) => {
  * For each asset, register it to table storage.
  * @name registerAssetsToTable
  * @param {Array} assets
- * @name {string} spaName
- * @name {string} spaVersion
- * @name {string} skyuxVersion
+ * @param {Object} settings
  * @returns {Function} promise
  */
-const registerAssetsToTable = (assets, spaName, spaVersion, skyuxVersion) => {
-  const tableName = 'spa';
-  const table = azure.createTableService();
+const registerAssetsToTable = (assets, settings) => {
+  const table = azure.createTableService(
+    settings.azureStorageAccount,
+    settings.azureStorageAccessKey
+  );
   const generator = azure.TableUtilities.entityGenerator;
   const tableAssets = assets.map((asset) => asset.name + asset.ext);
   const entity = {
-    PartitionKey: generator.String(spaName),
-    RowKey: generator.String(spaVersion),
+    PartitionKey: generator.String(settings.name),
+    RowKey: generator.String(settings.version),
     Scripts: generator.String(JSON.stringify(tableAssets)),
-    SkyUXVersion: generator.String(skyuxVersion),
-    Version: generator.String(spaVersion)
+    SkyUXVersion: generator.String(settings.skyuxVersion),
+    Version: generator.String(settings.version)
   };
 
   return new Promise((resolve, reject) => {
-    logger.info('Verifying table %s', tableName);
-    table.createTableIfNotExists(tableName, (errorTable) => {
+    logger.info('Verifying table %s', settings.azureStorageTableName);
+    table.createTableIfNotExists(settings.azureStorageTableName, (errorTable) => {
       rejectIfError(reject, errorTable);
-      table.insertEntity(tableName, entity, (errorEntity) => {
-
-        // Catch the common "already exists" error
-        if (errorEntity && errorEntity.toString().indexOf('already exists') > -1) {
-          logger.error(
-            '%s, version %s has already been registered in table storage.',
-            spaName,
-            spaVersion
-          );
-          return;
-        }
-
+      table.insertEntity(settings.azureStorageTableName, entity, (errorEntity) => {
         rejectIfError(reject, errorEntity);
+        logger.info('SPA %s registered in table storage.', settings.name);
         resolve();
       });
     });
@@ -131,11 +128,12 @@ const registerAssetsToTable = (assets, spaName, spaVersion, skyuxVersion) => {
 /**
  * Reads the installed version of skyux2.
  * @name getSkyuxVersion
+ * @param {String} cwd
  * @returns {string} skyuxVersion
  */
-const getSkyuxVersion = () => {
+const getSkyuxVersion = (cwd) => {
   const skyuxPath = path.resolve(
-    process.cwd(),
+    cwd,
     'node_modules',
     'blackbaud-skyux2',
     'package.json'
@@ -150,46 +148,84 @@ const getSkyuxVersion = () => {
 
 /**
  * Allows errors to be recorded via one-line.
+ * Handles the most-common
  * @name handleError
  * @param [Error] {error}
  */
 const handleError = (error) => {
   if (error) {
-    logger.error(error);
+    if (error.toString().indexOf('already exists') > -1) {
+      logger.error('Already been registered in table storage.');
+    } else {
+      logger.error(error);
+    }
   }
+};
+
+/**
+ * Validates any required settings.
+ * @name validate
+ * @param {Array} assets
+ * @param {Object} settings
+ * @returns {Boolean} isValid
+ */
+const validate = (assets, settings) => {
+  const required = [
+    'name',
+    'version',
+    'skyuxVersion',
+    'azureStorageAccount',
+    'azureStorageAccessKey',
+    'azureStorageTableName'
+  ];
+  let success = true;
+
+  if (assets.length === 0) {
+    logger.error('Unable to find any matching assets in SPA %s.', settings.name);
+    success = false;
+  }
+
+  required.forEach((key) => {
+    if (!settings[key]) {
+      logger.error('%s is required.', key);
+      success = false;
+    }
+  });
+
+  return success;
 };
 
 /**
  * Verifies version + assets, then adds to blob + table storage.
  * @name deploy
- * @param {string} dist
+ * @param {Object} args
  * @returns null
  */
-const deploy = () => {
-  const spaJson = require(path.join(process.cwd(), 'package.json'));
-  const spaVersion = spaJson.version;
-  const spaName = spaJson.name;
+const deploy = (args) => {
+  const cwd = process.cwd();
+  const json = require(path.join(cwd, 'package.json'));
 
-  const skyuxVersion = getSkyuxVersion();
-  const assets = getDistAssetsSorted('dist');
+  const assets = getDistAssetsSorted(path.join(cwd, 'dist'));
+  const settings = merge({
+    version: json.version,
+    name: json.name,
+    skyuxVersion: getSkyuxVersion(cwd),
+    azureStorageTableName: 'spa'
+  }, args);
 
-  if (assets.length === 0) {
-    logger.error('Unable to find any matching assets in SPA %s.', spaName);
+  if (!validate(assets, settings)) {
     return;
   }
 
-  logger.info('Registering SPA %s - %s', spaName, spaVersion);
-  logger.info('spaVersion: %s', spaVersion);
-  logger.info('spaName: %s', spaName);
-  logger.info('skyuxVersion: %s', skyuxVersion);
-  registerAssetsToBlob(assets, spaName).then(() => {
-    logger.info('SPA %s successfully registered in blob storage.', spaName);
-    registerAssetsToTable(assets, spaName, spaVersion, skyuxVersion).then(() => {
-      logger.info('SPA %s successfully registered in table storage.', spaName);
-    }, handleError);
+  logger.info('SPA Name: %s', settings.name);
+  logger.info('SPA Version: %s', settings.version);
+  logger.info('SKYUX Version: %s', settings.skyuxVersion);
+
+  registerAssetsToBlob(assets, settings).then(() => {
+    registerAssetsToTable(assets, settings).then(() => {}, handleError);
   }, handleError);
 };
 
 // ENTRY POINT
-deploy();
+deploy(minimist(process.argv.slice(2)));
 // ENTRY POINT
