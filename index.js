@@ -219,7 +219,7 @@ const processArgv = (argv) => {
   const assets = getDistAssetsSorted(path.join(cwd, 'dist'));
   const settings = merge({
     version: json.version,
-    name: json.name.replace(/blackbaud-sky-pages-spa-/gi, ''),
+    name: '',
     skyuxVersion: getSkyuxVersion(cwd),
     azureStorageTableName: 'spa'
   }, argv);

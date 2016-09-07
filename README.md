@@ -17,9 +17,11 @@ All of the following options are required and overridable via the CLI.  For exam
 
 | Option                  | Default |
 | ----------------------- | ------- |
-| `name`                  | `name` property in `package.json` |
+| `name`                  | `null` |
 | `version`               | `version` property in `package.json` |
 | `skyuxVersion`          | `_requested.spec` in the `package.json` file in `./node_modules/blackbaud-skyux2/` |
 | `azureStorageAccount`   | `null`  |
 | `azureStorageAccessKey` | `null`  |
 | `azureStorageTableName` | "spa"   |
+
+`null` values are typically supplied by the CI process.
