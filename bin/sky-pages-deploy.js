@@ -208,7 +208,7 @@ const deploy = (args) => {
   const assets = getDistAssetsSorted(path.join(cwd, 'dist'));
   const settings = merge({
     version: json.version,
-    name: json.name,
+    name: json.name.replace(/blackbaud-sky-pages-spa-/gi, ''),
     skyuxVersion: getSkyuxVersion(cwd),
     azureStorageTableName: 'spa'
   }, args);
