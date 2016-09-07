@@ -19,7 +19,7 @@ All of the following options are required and overridable via the CLI.  For exam
 | ----------------------- | ------- |
 | `name`                  | `name` property in `package.json` |
 | `version`               | `version` property in `package.json` |
-| `skyuxVersion`          | `_requested.spec` in the `package.json` file in `./node_modules/blackbaud-skyux2` |
+| `skyuxVersion`          | `_requested.spec` in the `package.json` file in `./node_modules/blackbaud-skyux2/` |
 | `azureStorageAccount`   | `null`  |
 | `azureStorageAccessKey` | `null`  |
-| `azureStorageTableName` | `spa`   |
+| `azureStorageTableName` | "spa"   |
