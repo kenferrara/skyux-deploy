@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "description": "Deployment package for sky-pages",
   "bin": {
-    "sky-pages-deploy": "bin/index.js"
+    "sky-pages-deploy": "bin/sky-pages-deploy.js"
   },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
