@@ -71,10 +71,22 @@ const registerAssetsToBlob = (assets, settings) => {
     logger.info('Creating blob for %s', asset.name);
 
     const content = fs.readFileSync(asset.fullpath, { encoding: 'utf8' });
-    blob.createBlockBlobFromText(settings.name, asset.hashedName, content, (error) => {
-      rejectIfError(reject, error);
-      resolve();
-    });
+    const options = {
+      contentSettings: {
+        contentType: 'application/x-javascript'
+      }
+    };
+
+    blob.createBlockBlobFromText(
+      settings.name,
+      asset.hashedName,
+      content,
+      options,
+      (error) => {
+        rejectIfError(reject, error);
+        resolve();
+      }
+    );
   });
 
   return new Promise((fnResolve, fnReject) => {
