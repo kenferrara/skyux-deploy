@@ -11,7 +11,9 @@ Deployment package for sky-pages
 
 ## Options
 
-All of the following options are required and overridable via the CLI.  For example, to set the name of the SPA the command would be `sky-pages-deploy --name MySPA`
+All of the following options are required and overridable via the CLI.  For example, to set the name of the SPA the command would be:
+
+`sky-pages-deploy --name MySPA`
 
 | Option                  | Default |
 | ----------------------- | ------- |
