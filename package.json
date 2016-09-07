@@ -2,6 +2,7 @@
   "name": "blackbaud-sky-pages-deploy",
   "version": "1.0.0",
   "description": "Deployment package for sky-pages",
+  "main": "index.js",
   "bin": {
     "sky-pages-deploy": "bin/sky-pages-deploy.js"
   },
