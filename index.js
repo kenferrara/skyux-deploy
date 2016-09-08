@@ -15,7 +15,7 @@ const logger = require('winston');
  * @returns {Array} assets
  */
 const getDistAssets = (dist) =>
-  glob.sync(dist + '/*.js').map((file) => {
+  glob.sync(dist + '/app.*.js').map((file) => {
     const parsed = path.parse(file);
     return merge(parsed, {
       fullpath: file,
