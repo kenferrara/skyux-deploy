@@ -45,7 +45,7 @@ const getHash = (content, algorithm, output) =>
  * @returns {Array} assets
  */
 const getDistAssetsSorted = (dist) => {
-  const sortOrder = ['polyfill', 'vendor', 'app'];
+  const sortOrder = ['polyfill', 'vendor', 'skyux', 'app'];
   const assets = getDistAssets(dist);
   return assets.sort((a, b) => {
     const aName = a.name.split('.')[0];
