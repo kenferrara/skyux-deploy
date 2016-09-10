@@ -2,6 +2,7 @@
 'use strict';
 
 const azure = require('azure-storage');
+const crypto = require('crypto');
 const fs = require('fs');
 const glob = require('glob');
 const path = require('path');
@@ -15,13 +16,26 @@ const logger = require('winston');
  * @returns {Array} assets
  */
 const getDistAssets = (dist) =>
-  glob.sync(dist + '/app.*.js').map((file) => {
+  glob.sync(dist + '/.*.js').map((file) => {
     const parsed = path.parse(file);
+    const content = fs.readFileSync(file, { encoding: 'utf8' });
+    const hash = getHash(content, 'md5', 'hex');
     return merge(parsed, {
-      fullpath: file,
-      hashedName: parsed.name + parsed.ext
+      content: content,
+      hashedName: parsed.name + '.' + hash + parsed.ext,
     });
   });
+
+/**
+ * Light wrapper to crypto.createHash.
+ * @name getHash
+ * @param {string} content
+ * @param {string} algorithm
+ * @param {string} output
+ * @returns {string} hash
+ */
+const getHash = (content, algorithm, output) =>
+  crypto.createHash(algorithm).update(content).digest(output);
 
 /**
  * Sorts the assets.
@@ -70,7 +84,6 @@ const registerAssetsToBlob = (assets, settings) => {
   const insert = (asset) => new Promise((resolve, reject) => {
     logger.info('Creating blob for %s', asset.name);
 
-    const content = fs.readFileSync(asset.fullpath, { encoding: 'utf8' });
     const options = {
       contentSettings: {
         contentType: 'application/x-javascript'
@@ -80,7 +93,7 @@ const registerAssetsToBlob = (assets, settings) => {
     blob.createBlockBlobFromText(
       settings.name,
       asset.hashedName,
-      content,
+      asset.content,
       options,
       (error) => {
         rejectIfError(reject, error);
