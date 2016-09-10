@@ -16,7 +16,7 @@ const logger = require('winston');
  * @returns {Array} assets
  */
 const getDistAssets = (dist) =>
-  glob.sync(dist + '/.*.js').map((file) => {
+  glob.sync(dist + '/*.js').map((file) => {
     const parsed = path.parse(file);
     const content = fs.readFileSync(file, { encoding: 'utf8' });
     const hash = getHash(content, 'md5', 'hex');
@@ -233,7 +233,7 @@ const processArgv = (argv) => {
   const settings = merge({
     version: json.version,
     name: '',
-    skyuxVersion: getSkyuxVersion(cwd),
+    skyuxVersion: json.peer,
     azureStorageTableName: 'spa'
   }, argv);
 
