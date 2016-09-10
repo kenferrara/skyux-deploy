@@ -233,7 +233,7 @@ const processArgv = (argv) => {
   const settings = merge({
     version: json.version,
     name: '',
-    skyuxVersion: json.peer,
+    skyuxVersion: getSkyuxVersion(cwd),
     azureStorageTableName: 'spa'
   }, argv);
 
