@@ -127,7 +127,7 @@ const registerAssetsToTable = (assets, settings) => {
     settings.azureStorageAccessKey
   );
   const generator = azure.TableUtilities.entityGenerator;
-  const tableAssets = assets.map((asset) => asset.name + asset.ext);
+  const tableAssets = assets.map((asset) => asset.hashedName);
   const entity = {
     PartitionKey: generator.String(settings.name),
     RowKey: generator.String(settings.version),
