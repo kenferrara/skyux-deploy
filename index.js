@@ -8,6 +8,7 @@ const glob = require('glob');
 const path = require('path');
 const merge = require('merge');
 const logger = require('winston');
+const generator = azure.TableUtilities.entityGenerator;
 
 /**
  * Returns an array of assets (files + metadata).
@@ -115,6 +116,18 @@ const registerAssetsToBlob = (assets, settings) => {
 };
 
 /**
+ * Creates a table service with the given settings.
+ * @name getTableService
+ * @param {Object} settings
+ * @returns {TableService} TableService
+ */
+const getTableService = (settings) =>
+  azure.createTableService(
+    settings.azureStorageAccount,
+    settings.azureStorageAccessKey
+  );
+
+/**
  * For each asset, register it to table storage.
  * @name registerAssetsToTable
  * @param {Array} assets
@@ -122,11 +135,7 @@ const registerAssetsToBlob = (assets, settings) => {
  * @returns {Function} promise
  */
 const registerAssetsToTable = (assets, settings) => {
-  const table = azure.createTableService(
-    settings.azureStorageAccount,
-    settings.azureStorageAccessKey
-  );
-  const generator = azure.TableUtilities.entityGenerator;
+  const table = getTableService(settings);
   const tableAssets = assets.map((asset) => asset.hashedName);
   const entity = {
     PartitionKey: generator.String(settings.name),
@@ -143,6 +152,33 @@ const registerAssetsToTable = (assets, settings) => {
       table.insertEntity(settings.azureStorageTableName, entity, (errorEntity) => {
         rejectIfError(reject, errorEntity);
         logger.info('SPA %s registered in table storage.', settings.name);
+        resolve();
+      });
+    });
+  });
+};
+
+/**
+ * Setst the default version in Table Storage.
+ * @name setDefaultVersionInTable
+ * @param {Object} settings
+ * @returns {Function} promise
+ */
+const setDefaultVersionInTable = (settings) => {
+  const table = getTableService(settings);
+  const entity = {
+    PartitionKey: generator.String(settings.name),
+    RowKey: generator.String('__default'),
+    Version: generator.String(settings.version)
+  };
+
+  return new Promise((resolve, reject) => {
+    logger.info('Verifying table %s', settings.azureStorageTableName);
+    table.createTableIfNotExists(settings.azureStorageTableName, (errorTable) => {
+      rejectIfError(reject, errorTable);
+      table.insertOrReplaceEntity(settings.azureStorageTableName, entity, (errorEntity) => {
+        rejectIfError(reject, errorEntity);
+        logger.info('SPA %s default version set to %s.', settings.name, settings.version);
         resolve();
       });
     });
@@ -222,14 +258,14 @@ const validate = (assets, settings) => {
 /**
  * Verifies version + assets, then adds to blob + table storage.
  * @name processArgs
- * @param {Object} args
+ * @param {Object} argv
  * @returns null
  */
 const processArgv = (argv) => {
+  const command = argv._[0];
   const cwd = process.cwd();
-  const json = require(path.join(cwd, 'package.json'));
-
   const assets = getDistAssetsSorted(path.join(cwd, 'dist'));
+  const json = require(path.join(cwd, 'package.json'));
   const settings = merge({
     version: json.version,
     name: '',
@@ -237,17 +273,27 @@ const processArgv = (argv) => {
     azureStorageTableName: 'spa'
   }, argv);
 
-  if (!validate(assets, settings)) {
-    return;
-  }
+  // if (!validate(assets, settings)) {
+  //   return;
+  // }
 
   logger.info('SPA Name: %s', settings.name);
   logger.info('SPA Version: %s', settings.version);
   logger.info('SKYUX Version: %s', settings.skyuxVersion);
 
-  registerAssetsToBlob(assets, settings).then(() => {
-    registerAssetsToTable(assets, settings).then(() => {}, handleError);
-  }, handleError);
+  switch (command) {
+    case 'deploy':
+      registerAssetsToBlob(assets, settings).then(() => {
+        registerAssetsToTable(assets, settings).then(() => {}, handleError);
+      }, handleError);
+      break;
+    case 'publish':
+      setDefaultVersionInTable(settings);
+      break;
+    default:
+      logger.info('Uknown sky-pages-deploy command.');
+      break;
+  }
 };
 
 module.exports = processArgv;
