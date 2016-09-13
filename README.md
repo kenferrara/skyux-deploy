@@ -7,7 +7,7 @@ Deployment package for sky-pages
 
 ## Usage
 
-`sky-pages-deploy`
+`sky-pages-deploy deploy` or `sky-pages-deploy publish`
 
 ## Options
 
