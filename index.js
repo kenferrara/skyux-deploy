@@ -130,7 +130,7 @@ const registerAssetsToTable = (assets, settings) => {
   const tableAssets = assets.map((asset) => asset.hashedName);
   const entity = {
     PartitionKey: generator.String(settings.name),
-    RowKey: generator.String(settings.version),
+    RowKey: generator.String(settings.version.toString()),
     Scripts: generator.String(JSON.stringify(tableAssets)),
     SkyUXVersion: generator.String(settings.skyuxVersion),
     Version: generator.String(settings.version)
