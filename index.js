@@ -14,7 +14,6 @@ const settings = require('./lib/settings');
  */
 const processArgv = (argv) => {
   const options = settings.getSettings(argv);
-  console.log(options);
 
   logger.info('SPA Name: %s', options.name);
   logger.info('SPA Version: %s', options.version);
