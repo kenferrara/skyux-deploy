@@ -29,7 +29,7 @@ describe('sky-pages-deploy lib publish', () => {
     expect(entityTest.PartitionKey).toEqual('custom-name');
     expect(entityTest.RowKey).toEqual('__default');
     expect(entityTest.Version).toEqual('custom-version');
-
+    mock.stop('../lib/azure');
   });
 
 });
