@@ -75,6 +75,32 @@ describe('sky-pages-deploy lib assets', () => {
       expect(assets[0].content).toEqual('my-custom-content2');
     });
 
+    it('should not include content if argument supplied', () => {
+      const readFileSync = fs.readFileSync;
+      spyOn(fs, 'existsSync').and.returnValue(true);
+      spyOn(fs, 'readFileSync').and.callFake((file, options) => {
+        if (file.indexOf('custom-name.js') > -1) {
+          return 'my-custom-content3';
+        } else {
+          return readFileSync(file, options);
+        }
+      });
+
+      let stubs = {};
+      stubs[path.join(process.cwd(), 'dist', 'metadata.json')] = [
+        {
+          name: 'custom-name.js'
+        }
+      ];
+
+      const lib = proxyquire('../lib/assets', stubs);
+      const assetsWithContent = lib.getDistAssets(true);
+      const assetsWithoutContent = lib.getDistAssets(false);
+
+      expect(assetsWithContent[0].content).toEqual('my-custom-content3');
+      expect(assetsWithoutContent[0].content).not.toBeDefined();
+    });
+
   });
 
 });
