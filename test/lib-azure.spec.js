@@ -154,6 +154,14 @@ describe('sky-pages-deploy lib azure', () => {
 
     });
 
+    it('should throw an error if no assets', (done) => {
+      spyOn(logger, 'error');
+      lib.registerAssetsToBlob({}).catch((err) => {
+        expect(err).toEqual('Assets are required.');
+        done();
+      });
+    });
+
   });
 
   describe('registerEntityToTable', () => {
