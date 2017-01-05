@@ -27,7 +27,7 @@ function processArgv(argv) {
       publish(options);
       break;
     default:
-      logger.info('Unknown sky-pages-deploy command.');
+      logger.info('Unknown skyux-deploy command.');
       break;
   }
 }
