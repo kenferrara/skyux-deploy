@@ -1,7 +1,7 @@
 /*jshint jasmine: true, node: true */
 'use strict';
 
-describe('sky-pages-deploy lib utils', () => {
+describe('skyux-deploy lib utils', () => {
 
   const logger = require('winston');
   let utils;

@@ -1,7 +1,7 @@
 /*jshint jasmine: true, node: true */
 'use strict';
 
-describe('sky-pages-deploy lib deploy', () => {
+describe('skyux-deploy lib deploy', () => {
 
   const mock = require('mock-require');
   const logger = require('winston');

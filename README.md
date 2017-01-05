@@ -1,19 +1,19 @@
-# sky-pages-deploy
-Deployment package for sky-pages
+# skyux-deploy
+Deployment package for skyux apps.
 
 ## Install
 
-`npm install -g blackbaud/sky-pages-deploy`
+`npm install -g @blackbaud/skyux-deploy`
 
 ## Usage
 
-`sky-pages-deploy deploy` or `sky-pages-deploy publish`
+`skyux-deploy deploy` or `skyux-deploy publish`
 
 ## Options
 
 All of the following options are required and overridable via the CLI.  For example, to set the name of the SPA the command would be:
 
-`sky-pages-deploy --name MySPA`
+`skyux-deploy --name MySPA`
 
 | Option                  | Default |
 | ----------------------- | ------- |

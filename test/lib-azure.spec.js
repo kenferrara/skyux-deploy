@@ -1,7 +1,7 @@
 /*jshint jasmine: true, node: true */
 'use strict';
 
-describe('sky-pages-deploy lib azure', () => {
+describe('skyux-deploy lib azure', () => {
 
   const mock = require('mock-require');
   // const azure = require('azure-storage');
