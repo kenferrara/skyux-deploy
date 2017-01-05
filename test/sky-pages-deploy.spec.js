@@ -4,7 +4,7 @@
 const logger = require('winston');
 const mock = require('mock-require');
 
-describe('sky-pages-deploy', () => {
+describe('skyux-deploy', () => {
 
   const cmds = {
     deploy: false,
@@ -34,7 +34,7 @@ describe('sky-pages-deploy', () => {
     expect(logger.info).toHaveBeenCalledWith('SPA Name: %s', 'spa-name');
     expect(logger.info).toHaveBeenCalledWith('SPA Version: %s', 'spa-version');
     expect(logger.info).toHaveBeenCalledWith('SKY UX Version: %s', 'skyux-version');
-    expect(logger.info).toHaveBeenCalledWith('Unknown sky-pages-deploy command.');
+    expect(logger.info).toHaveBeenCalledWith('Unknown skyux-deploy command.');
   });
 
   it('should handle known commands', () => {

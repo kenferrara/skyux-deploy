@@ -1,7 +1,7 @@
 /*jshint jasmine: true, node: true */
 'use strict';
 
-describe('sky-pages-deploy lib publish', () => {
+describe('skyux-deploy lib publish', () => {
 
   const mock = require('mock-require');
 

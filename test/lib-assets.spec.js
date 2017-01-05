@@ -1,7 +1,7 @@
 /*jshint jasmine: true, node: true */
 'use strict';
 
-describe('sky-pages-deploy lib assets', () => {
+describe('skyux-deploy lib assets', () => {
 
   const fs = require('fs');
   const path = require('path');
