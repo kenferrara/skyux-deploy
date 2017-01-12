@@ -14,19 +14,33 @@ describe('skyux-deploy lib settings', () => {
 
   it('should return settings, merging package.json with arguments', () => {
 
-    let stubs = {};
-    stubs[path.join(process.cwd(), 'package.json')] = {
-      '@noCallThru': true,
-      version: 'custom-version'
-    };
+    spyOn(fs, 'existsSync').and.returnValue(true);
+    spyOn(fs, 'readFileSync').and.callFake((filename) => {
+      if (filename.indexOf('package.json') > -1) {
+        return JSON.stringify({
+          version: 'custom-version',
+          test1: 'value1'
+        });
+      }
 
-    const lib = proxyquire('../lib/settings', stubs);
+      if (filename.indexOf('skyuxconfig.json') > -1) {
+        return JSON.stringify({
+          test2: 'value2'
+        });
+      }
+
+      return '';
+    });
+
+    const lib = require('../lib/settings');
     const settings = lib.getSettings({
       name: 'custom-name1'
     });
 
     expect(settings.name).toEqual('custom-name1');
     expect(settings.version).toEqual('custom-version');
+    expect(settings.packageConfig.test1).toEqual('value1');
+    expect(settings.skyuxConfig.test2).toEqual('value2');
   });
 
   it('should return settings even if package.json does not exist', () => {
@@ -47,25 +61,30 @@ describe('skyux-deploy lib settings', () => {
   });
 
   it('should read the skyux version if it is installed', () => {
-    spyOn(logger, 'error');
-    spyOn(fs, 'existsSync').and.returnValue(true);
 
-    let stubs = {};
-    const skyuxPath = path.join(
+    const skyuxInstalledPath = path.join(
       process.cwd(),
       'node_modules',
-      'blackbaud-skyux2',
+      '@blackbaud',
+      'skyux',
       'package.json'
     );
 
-    stubs[skyuxPath] = {
-      '@noCallThru': true,
-      _requested: {
-        spec: 'custom-skyux-version'
+    spyOn(logger, 'error');
+    spyOn(fs, 'existsSync').and.returnValue(true);
+    spyOn(fs, 'readFileSync').and.callFake((filename) => {
+      if (filename === skyuxInstalledPath) {
+        return JSON.stringify({
+          _requested: {
+            spec: 'custom-skyux-version'
+          }
+        });
       }
-    };
 
-    const lib = proxyquire('../lib/settings', stubs);
+      return '{}';
+    });
+
+    const lib = require('../lib/settings');
     const settings = lib.getSettings();
 
     expect(settings.skyuxVersion).toEqual('custom-skyux-version');
