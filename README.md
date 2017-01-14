@@ -1,4 +1,8 @@
 # skyux-deploy
+
+[![npm](https://img.shields.io/npm/v/@blackbaud/skyux-deploy.svg)](https://www.npmjs.com/package/@blackbaud/skyux-deploy)
+[![status](https://travis-ci.org/blackbaud/skyux-deploy.svg?branch=master)](https://travis-ci.org/blackbaud/skyux-deploy)
+
 Deployment package for skyux apps.
 
 ## Install
