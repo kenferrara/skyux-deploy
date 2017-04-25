@@ -6,6 +6,16 @@ describe('skyux-deploy lib deploy', () => {
   const mock = require('mock-require');
   const logger = require('winston');
 
+  const distAsset = {
+    name: 'my-asset.js',
+    content: 'my-content'
+  };
+
+  const emittedAsset = {
+    name: 'my-image.png',
+    file: 'full-path/my-image.png'
+  };
+
   let lib;
   let assets;
   let assetsSettings;
@@ -64,11 +74,17 @@ describe('skyux-deploy lib deploy', () => {
       }
     });
 
+    mock('../lib/assets', {
+      getDistAssets: () => ([distAsset]),
+      getEmittedAssets: () => ([emittedAsset])
+    });
+
     lib = require('../lib/deploy');
   });
 
   afterEach(() => {
     mock.stop('../lib/azure');
+    mock.stop('../lib/assets');
   });
 
   it('should create an entity and call registerAssetsToBlob', () => {
@@ -82,15 +98,18 @@ describe('skyux-deploy lib deploy', () => {
     expect(assetsSettings.skyuxVersion).toEqual('custom-skyux-version1');
   });
 
-  it('should handle an error after calling registerEntityToBlob', () => {
+  it('should handle an error after calling registerEntityToBlob', (done) => {
     assetsReject = 'custom-error1';
-    lib({}).then(() => {
-      expect(logger.error).toHaveBeenCalledWith('custom-error1');
+    lib({}).catch((err) => {
+      expect(logger.error).toHaveBeenCalledWith(assetsReject);
+      expect(err).toEqual(assetsReject);
+      done();
     });
   });
 
-  it('should call registerEntityToTable if registerAssetsToBlob is successful', () => {
+  it('should call registerEntityToTable if registerAssetsToBlob is successful', (done) => {
     assetsResolve = true;
+    entityResolve = true;
     lib({
       name: 'custom-name2',
       version: 'custom-version2',
@@ -103,21 +122,39 @@ describe('skyux-deploy lib deploy', () => {
       expect(entity.SkyUXVersion).toEqual('custom-skyux-version2');
       expect(entity.SkyUXConfig).toEqual(JSON.stringify({ test1: true }));
       expect(entity.PackageConfig).toEqual(JSON.stringify({ test2: true }));
+      done();
     });
 
   });
 
-  it('should handle an error after calling registerEntityToTable', () => {
+  it('should handle an error after calling registerEntityToTable', (done) => {
+    assetsResolve = true;
     entityReject = 'custom-error2';
-    lib({}).then(() => {
-      expect(logger.error).toHaveBeenCalledWith('custom-error2');
+    lib({}).catch((err) => {
+      expect(logger.error).toHaveBeenCalledWith(entityReject);
+      expect(err).toEqual(entityReject);
+      done();
     });
   });
 
-  it('should display a message if registerEntityToTable is successful', () => {
+  it('should display a message if registerEntityToTable is successful', (done) => {
+    assetsResolve = true;
     entityResolve = true;
     lib({}).then(() => {
       expect(logger.info).toHaveBeenCalledWith('Successfully registered.');
+      done();
+    });
+  });
+
+  it('should concat the assets from getDistAssets and getEmittedAssets', (done) => {
+    assetsResolve = true;
+    entityResolve = true;
+    lib({}).then(() => {
+      expect(assets).toEqual([
+        distAsset,
+        emittedAsset
+      ]);
+      done();
     });
   });
 
