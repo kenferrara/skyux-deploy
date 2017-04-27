@@ -12,6 +12,7 @@ describe('skyux-deploy lib azure', () => {
   let createBlobServiceArgs;
   let createTableServiceArgs;
   let createBlockBlobFromTextArgs;
+  let createAppendBlobFromLocalFileArgs;
   let createContainerIfNotExistsArgs;
   let createTableIfNotExistsArgs;
   let insertOrReplaceEntityArgs;
@@ -21,6 +22,7 @@ describe('skyux-deploy lib azure', () => {
     createBlobServiceArgs = {};
     createTableServiceArgs = {};
     createBlockBlobFromTextArgs = {};
+    createAppendBlobFromLocalFileArgs = {};
     createContainerIfNotExistsArgs = {};
     createTableIfNotExistsArgs = {};
     insertOrReplaceEntityArgs = {};
@@ -49,11 +51,18 @@ describe('skyux-deploy lib azure', () => {
               options: options,
               cb: cb
             };
+          },
+
+          createAppendBlobFromLocalFile: (blobName, assetName, localFile, cb) => {
+            createAppendBlobFromLocalFileArgs = {
+              blobName: blobName,
+              assetName: assetName,
+              localFile: localFile,
+              cb: cb
+            };
           }
         };
       },
-
-      createBlockBlobFromText: () => {},
 
       createTableService: (account, key) => {
         createTableServiceArgs = {
@@ -154,12 +163,51 @@ describe('skyux-deploy lib azure', () => {
 
     });
 
+    it('should call createAppendBlobFromLocalFile and handle success', () => {
+      const settings = { blobName: 'blob-name3' };
+      const assets = [{
+        name: 'asset-name2.jpg',
+        file: '/home/assets/asset-name2.jpg'
+      }];
+
+      spyOn(logger, 'error');
+      lib.registerAssetsToBlob(settings, assets);
+      createContainerIfNotExistsArgs.cb();
+
+      expect(createAppendBlobFromLocalFileArgs.blobName).toEqual(settings.name);
+      expect(createAppendBlobFromLocalFileArgs.assetName).toEqual(assets[0].name);
+      expect(createAppendBlobFromLocalFileArgs.localFile).toEqual(assets[0].file);
+    });
+
+    it('should call createAppendBlobFromLocalFile and handle error', () => {
+
+      const settings = { blobName: 'blob-name4' };
+      const assets = [{
+        name: 'asset-name3.jpg',
+        file: '/home/assets/asset-name3.jpg'
+      }];
+
+      spyOn(logger, 'error');
+      lib.registerAssetsToBlob(settings, assets);
+      createContainerIfNotExistsArgs.cb();
+      createAppendBlobFromLocalFileArgs.cb('error4');
+      expect(logger.error).toHaveBeenCalledWith('error4');
+
+    });
+
     it('should throw an error if no assets', (done) => {
       spyOn(logger, 'error');
       lib.registerAssetsToBlob({}).catch((err) => {
         expect(err).toEqual('Assets are required.');
         done();
       });
+    });
+
+    it('should log an error if there was unknown asset type', () => {
+      spyOn(logger, 'error');
+      lib.registerAssetsToBlob({}, [{ type: 'unknown' }]);
+      createContainerIfNotExistsArgs.cb();
+      expect(logger.error).toHaveBeenCalledWith('Unknown asset type.');
     });
 
   });

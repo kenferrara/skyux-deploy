@@ -5,12 +5,17 @@ describe('skyux-deploy lib assets', () => {
 
   const fs = require('fs');
   const path = require('path');
+  const glob = require('glob');
   const proxyquire = require('proxyquire').noCallThru();
-  // const logger = require('winston');
 
   it('should expose a getDistAssets method', () => {
     const lib = require('../lib/assets');
     expect(lib.getDistAssets).toBeDefined();
+  });
+
+  it('should expose a getEmittedAssets method', () => {
+    const lib = require('../lib/assets');
+    expect(lib.getEmittedAssets).toBeDefined();
   });
 
   it('should expose a getHash method', () => {
@@ -20,9 +25,9 @@ describe('skyux-deploy lib assets', () => {
 
   describe('getDistAssets', () => {
 
-    it('should handle if metadata.json file exists', () => {
+    it('should return an empty array if no metadata.json', () => {
       const lib = require('../lib/assets');
-      expect(lib.getDistAssets()).toBeUndefined();
+      expect(lib.getDistAssets()).toEqual([]);
     });
 
     it('should return the name and sri hash for each assets in metadata', () => {
@@ -101,6 +106,34 @@ describe('skyux-deploy lib assets', () => {
       expect(assetsWithoutContent[0].content).not.toBeDefined();
     });
 
+  });
+
+  describe('getEmittedAssets', () => {
+
+    it('should return an empty array if no assets folder', () => {
+      const lib = require('../lib/assets');
+      expect(lib.getEmittedAssets()).toEqual([]);
+    });
+
+    it('should return an empty array if empty assets folder', () => {
+      spyOn(fs, 'existsSync').and.returnValue(true);
+      spyOn(fs, 'readdirSync').and.returnValue([]);
+      const lib = require('../lib/assets');
+      expect(lib.getEmittedAssets()).toEqual([]);
+    });
+
+    it('should return an array of names/files from the assets folder', () => {
+      spyOn(glob, 'sync').and.returnValue([
+        path.join(process.cwd(), 'dist', 'assets', 'nested', 'my-file.jpg')
+      ]);
+      const lib = require('../lib/assets');
+      expect(lib.getEmittedAssets()).toEqual([
+        {
+          name: 'assets/nested/my-file.jpg',
+          file: path.join(process.cwd(), 'dist', 'assets', 'nested', 'my-file.jpg')
+        }
+      ]);
+    });
   });
 
 });
