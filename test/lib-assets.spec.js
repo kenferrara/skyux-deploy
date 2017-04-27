@@ -5,8 +5,8 @@ describe('skyux-deploy lib assets', () => {
 
   const fs = require('fs');
   const path = require('path');
+  const glob = require('glob');
   const proxyquire = require('proxyquire').noCallThru();
-  // const logger = require('winston');
 
   it('should expose a getDistAssets method', () => {
     const lib = require('../lib/assets');
@@ -123,18 +123,14 @@ describe('skyux-deploy lib assets', () => {
     });
 
     it('should return an array of names/files from the assets folder', () => {
-      spyOn(fs, 'existsSync').and.returnValue(true);
-      spyOn(fs, 'readdirSync').and.returnValue([
-        'full-path/my-file.jpg'
+      spyOn(glob, 'sync').and.returnValue([
+        path.join(process.cwd(), 'dist', 'assets', 'nested', 'my-file.jpg')
       ]);
-      spyOn(path, 'parse').and.returnValue({
-        base: 'my-file.jpg'
-      });
       const lib = require('../lib/assets');
       expect(lib.getEmittedAssets()).toEqual([
         {
-          name: 'my-file.jpg',
-          file: 'full-path/my-file.jpg'
+          name: 'assets/nested/my-file.jpg',
+          file: path.join(process.cwd(), 'dist', 'assets', 'nested', 'my-file.jpg')
         }
       ]);
     });
