@@ -1,3 +1,7 @@
+# 1.0.0-beta.3 (2017-04-28)
+
+- Adding missing `glob` dependency.
+
 # 1.0.0-beta.2 (2017-04-28)
 
 - Deploying any files in `dist/assets`. [#14](https://github.com/blackbaud/skyux-deploy/pull/14)
