@@ -1,3 +1,7 @@
+# 1.0.0-beta.4 (2017-05-01)
+
+- Uploading assets as block blobs instead of append blobs to Azure. 
+
 # 1.0.0-beta.3 (2017-04-28)
 
 - Adding missing `glob` dependency.

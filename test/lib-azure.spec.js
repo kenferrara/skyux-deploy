@@ -12,7 +12,7 @@ describe('skyux-deploy lib azure', () => {
   let createBlobServiceArgs;
   let createTableServiceArgs;
   let createBlockBlobFromTextArgs;
-  let createAppendBlobFromLocalFileArgs;
+  let createBlockBlobFromLocalFileArgs;
   let createContainerIfNotExistsArgs;
   let createTableIfNotExistsArgs;
   let insertOrReplaceEntityArgs;
@@ -22,7 +22,7 @@ describe('skyux-deploy lib azure', () => {
     createBlobServiceArgs = {};
     createTableServiceArgs = {};
     createBlockBlobFromTextArgs = {};
-    createAppendBlobFromLocalFileArgs = {};
+    createBlockBlobFromLocalFileArgs = {};
     createContainerIfNotExistsArgs = {};
     createTableIfNotExistsArgs = {};
     insertOrReplaceEntityArgs = {};
@@ -53,8 +53,8 @@ describe('skyux-deploy lib azure', () => {
             };
           },
 
-          createAppendBlobFromLocalFile: (blobName, assetName, localFile, cb) => {
-            createAppendBlobFromLocalFileArgs = {
+          createBlockBlobFromLocalFile: (blobName, assetName, localFile, cb) => {
+            createBlockBlobFromLocalFileArgs = {
               blobName: blobName,
               assetName: assetName,
               localFile: localFile,
@@ -163,7 +163,7 @@ describe('skyux-deploy lib azure', () => {
 
     });
 
-    it('should call createAppendBlobFromLocalFile and handle success', () => {
+    it('should call createBlockBlobFromLocalFile and handle success', () => {
       const settings = { blobName: 'blob-name3' };
       const assets = [{
         name: 'asset-name2.jpg',
@@ -174,12 +174,12 @@ describe('skyux-deploy lib azure', () => {
       lib.registerAssetsToBlob(settings, assets);
       createContainerIfNotExistsArgs.cb();
 
-      expect(createAppendBlobFromLocalFileArgs.blobName).toEqual(settings.name);
-      expect(createAppendBlobFromLocalFileArgs.assetName).toEqual(assets[0].name);
-      expect(createAppendBlobFromLocalFileArgs.localFile).toEqual(assets[0].file);
+      expect(createBlockBlobFromLocalFileArgs.blobName).toEqual(settings.name);
+      expect(createBlockBlobFromLocalFileArgs.assetName).toEqual(assets[0].name);
+      expect(createBlockBlobFromLocalFileArgs.localFile).toEqual(assets[0].file);
     });
 
-    it('should call createAppendBlobFromLocalFile and handle error', () => {
+    it('should call createBlockBlobFromLocalFile and handle error', () => {
 
       const settings = { blobName: 'blob-name4' };
       const assets = [{
@@ -190,7 +190,7 @@ describe('skyux-deploy lib azure', () => {
       spyOn(logger, 'error');
       lib.registerAssetsToBlob(settings, assets);
       createContainerIfNotExistsArgs.cb();
-      createAppendBlobFromLocalFileArgs.cb('error4');
+      createBlockBlobFromLocalFileArgs.cb('error4');
       expect(logger.error).toHaveBeenCalledWith('error4');
 
     });
