@@ -6,6 +6,10 @@ const deploy = require('./lib/deploy');
 const publish = require('./lib/publish');
 const settings = require('./lib/settings');
 
+function exit() {
+  process.exit(1);
+}
+
 /**
  * Verifies version + assets, then adds to blob + table storage.
  * @name processArgs
@@ -21,10 +25,10 @@ function processArgv(argv) {
 
   switch (argv._[0]) {
     case 'deploy':
-      deploy(options);
+      deploy(options).catch(exit);
       break;
     case 'publish':
-      publish(options);
+      publish(options).catch(exit);
       break;
     default:
       logger.info('Unknown skyux-deploy command.');
