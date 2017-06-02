@@ -1,3 +1,8 @@
+# 1.0.0-beta.5 (2017-06-02)
+
+- Fixed bug parsing `JSON` files when a BOM was present.
+- If `deploy` or `release` step fails, return a non-zero exit code.
+
 # 1.0.0-beta.4 (2017-05-01)
 
 - Uploading assets as block blobs instead of append blobs to Azure. 
