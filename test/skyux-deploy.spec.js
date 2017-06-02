@@ -15,6 +15,7 @@ describe('skyux-deploy', () => {
     Object.keys(cmds).forEach(key => {
       mock('../lib/' + key, () => {
         cmds[key] = true;
+        return Promise.reject();
       });
     });
   });
@@ -25,6 +26,7 @@ describe('skyux-deploy', () => {
 
   it('should give details name, version, and SKY UX version', () => {
     spyOn(logger, 'info');
+
     require('../index')({
       _: ['junk-command'],
       name: 'spa-name',
@@ -44,6 +46,22 @@ describe('skyux-deploy', () => {
       });
       expect(cmds[key]).toEqual(true);
     });
+  });
+
+  it('should return a non-zero exit code if a known command fails', (done) => {
+
+    spyOn(process, 'exit').and.callFake(exitCode => {
+      expect(exitCode).toEqual(1);
+      done();
+    });
+
+    require('../index')({
+      _: ['deploy'],
+      name: 'spa-name',
+      version: 'spa-version',
+      skyuxVersion: 'skyux-version'
+    });
+
   });
 
 });
