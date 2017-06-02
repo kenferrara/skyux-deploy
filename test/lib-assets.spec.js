@@ -3,7 +3,7 @@
 
 describe('skyux-deploy lib assets', () => {
 
-  const fs = require('fs');
+  const fs = require('fs-extra');
   const path = require('path');
   const glob = require('glob');
   const proxyquire = require('proxyquire').noCallThru();

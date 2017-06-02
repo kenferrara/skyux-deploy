@@ -3,9 +3,8 @@
 
 describe('skyux-deploy lib settings', () => {
 
-  const fs = require('fs');
+  const fs = require('fs-extra');
   const path = require('path');
-  const proxyquire = require('proxyquire');
   const logger = require('winston');
 
   it('should expose a getSettings method', () => {
@@ -15,21 +14,21 @@ describe('skyux-deploy lib settings', () => {
   it('should return settings, merging package.json with arguments', () => {
 
     spyOn(fs, 'existsSync').and.returnValue(true);
-    spyOn(fs, 'readFileSync').and.callFake((filename) => {
+    spyOn(fs, 'readJsonSync').and.callFake((filename) => {
       if (filename.indexOf('package.json') > -1) {
-        return JSON.stringify({
+        return {
           version: 'custom-version',
           test1: 'value1'
-        });
+        };
       }
 
       if (filename.indexOf('skyuxconfig.json') > -1) {
-        return JSON.stringify({
+        return {
           test2: 'value2'
-        });
+        };
       }
 
-      return '';
+      return {};
     });
 
     const lib = require('../lib/settings');
@@ -72,16 +71,16 @@ describe('skyux-deploy lib settings', () => {
 
     spyOn(logger, 'error');
     spyOn(fs, 'existsSync').and.returnValue(true);
-    spyOn(fs, 'readFileSync').and.callFake((filename) => {
+    spyOn(fs, 'readJsonSync').and.callFake((filename) => {
       if (filename === skyuxInstalledPath) {
-        return JSON.stringify({
+        return {
           _requested: {
             spec: 'custom-skyux-version'
           }
-        });
+        };
       }
 
-      return '{}';
+      return {};
     });
 
     const lib = require('../lib/settings');
