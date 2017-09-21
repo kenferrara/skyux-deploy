@@ -158,4 +158,18 @@ describe('skyux-deploy lib deploy', () => {
     });
   });
 
+  it('should reject if there are no assets found', (done) => {
+    mock('../lib/assets', {
+      getDistAssets: () => ([]),
+      getEmittedAssets: () => ([])
+    });
+
+    lib = mock.reRequire('../lib/deploy');
+
+    lib({}).catch(err => {
+      expect(err).toBe('Unable to locate any assets to deploy.');
+      done();
+    });
+  });
+
 });
