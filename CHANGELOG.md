@@ -1,3 +1,7 @@
+# 1.0.0 (2017-10-03)
+
+- Returning non-zero exit code if no assets are found during `deploy`. [#21](https://github.com/blackbaud/skyux-deploy/pull/21)
+
 # 1.0.0-beta.5 (2017-06-02)
 
 - Fixed bug parsing `JSON` files when a BOM was present.
