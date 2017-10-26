@@ -129,7 +129,7 @@ describe('skyux-deploy lib assets', () => {
       const lib = require('../lib/assets');
       expect(lib.getEmittedAssets()).toEqual([
         {
-          name: 'assets/nested/my-file.jpg',
+          name: path.join('assets', 'nested', 'my-file.jpg'),
           file: path.join(process.cwd(), 'dist', 'assets', 'nested', 'my-file.jpg')
         }
       ]);
