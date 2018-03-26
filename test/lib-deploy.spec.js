@@ -4,7 +4,7 @@
 describe('skyux-deploy lib deploy', () => {
 
   const mock = require('mock-require');
-  const logger = require('winston');
+  const logger = require('@blackbaud/skyux-logger');
 
   const distAsset = {
     name: 'my-asset.js',

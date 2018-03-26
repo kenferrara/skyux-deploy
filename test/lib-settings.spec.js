@@ -5,7 +5,7 @@ describe('skyux-deploy lib settings', () => {
 
   const fs = require('fs-extra');
   const path = require('path');
-  const logger = require('winston');
+  const logger = require('@blackbaud/skyux-logger');
 
   it('should expose a getSettings method', () => {
     expect(require('../lib/settings').getSettings).toBeDefined();
