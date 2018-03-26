@@ -6,7 +6,7 @@ describe('skyux-deploy lib azure', () => {
   const mock = require('mock-require');
   // const azure = require('azure-storage');
   // const utils = require('../lib/utils');
-  const logger = require('winston');
+  const logger = require('@blackbaud/skyux-logger');
 
   let lib;
   let createBlobServiceArgs;

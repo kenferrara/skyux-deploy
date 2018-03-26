@@ -1,7 +1,7 @@
 /*jshint node: true*/
 'use strict';
 
-const logger = require('winston');
+const logger = require('@blackbaud/skyux-logger');
 const deploy = require('./lib/deploy');
 const publish = require('./lib/publish');
 const settings = require('./lib/settings');

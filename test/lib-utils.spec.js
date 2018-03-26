@@ -3,7 +3,7 @@
 
 describe('skyux-deploy lib utils', () => {
 
-  const logger = require('winston');
+  const logger = require('@blackbaud/skyux-logger');
   let utils;
 
   beforeEach(() => {
