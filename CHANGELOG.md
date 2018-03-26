@@ -1,3 +1,8 @@
+# 1.1.0 (2018-03-26)
+
+- Migrated all logging to use the `@blackbaud/skyux-logger` package. [#25](https://github.com/blackbaud/skyux-builder/pull/25)
+- Bugfix for reading SKY UX version when using NPM 5. [#24](https://github.com/blackbaud/skyux-builder/pull/24)
+
 # 1.0.0 (2017-10-03)
 
 - Returning non-zero exit code if no assets are found during `deploy`. [#21](https://github.com/blackbaud/skyux-deploy/pull/21)
