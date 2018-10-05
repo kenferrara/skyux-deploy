@@ -41,11 +41,12 @@ describe('skyux-deploy', () => {
 
   it('should handle known commands', (done) => {
     let commandsChecked = 0;
-    let totalCommands = Object.keys(cmds).length;
+    const commands = Object.keys(cmds);
+    const commandsTotal = commands.length;
 
     spyOn(process, 'exit').and.callFake(() => {
       commandsChecked++;
-      if (commandsChecked >= totalCommands) {
+      if (commandsChecked >= commandsTotal) {
         done();
       }
     });
