@@ -39,11 +39,23 @@ describe('skyux-deploy', () => {
     expect(logger.info).toHaveBeenCalledWith('Unknown skyux-deploy command.');
   });
 
-  it('should handle known commands', () => {
+  it('should handle known commands', (done) => {
+    let commandsChecked = 0;
+    const commands = Object.keys(cmds);
+    const commandsTotal = commands.length;
+
+    spyOn(process, 'exit').and.callFake(() => {
+      commandsChecked++;
+      if (commandsChecked >= commandsTotal) {
+        done();
+      }
+    });
+
     Object.keys(cmds).forEach(key => {
       require('../index')({
         _: [key]
       });
+
       expect(cmds[key]).toEqual(true);
     });
   });
