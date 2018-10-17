@@ -84,7 +84,6 @@ describe('skyux-deploy lib assets', () => {
       const readFileSync = fs.readFileSync;
       spyOn(fs, 'existsSync').and.returnValue(true);
       spyOn(fs, 'readFileSync').and.callFake((file, options) => {
-        console.log('FILE', file);
 
         if (file.indexOf('custom-name.js') > -1) {
           return 'my-custom-content3';
@@ -115,7 +114,6 @@ describe('skyux-deploy lib assets', () => {
         path.join(process.cwd(), 'dist', 'bundles', 'test.umd.js')
       ]);
       spyOn(fs, 'readFileSync').and.callFake((file, options) => {
-        console.log('FILE', file);
         if (file.indexOf('test.umd.js') > -1) {
           return 'my-custom-content3';
         } else {
