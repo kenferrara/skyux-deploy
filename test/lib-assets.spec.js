@@ -106,6 +106,63 @@ describe('skyux-deploy lib assets', () => {
       expect(assetsWithoutContent[0].content).not.toBeDefined();
     });
 
+    it('should evaluate static client assets', () => {
+      const readFileSync = fs.readFileSync;
+      spyOn(glob, 'sync').and.returnValue([
+        path.join(process.cwd(), 'dist', 'bundles', 'test.umd.js')
+      ]);
+      spyOn(fs, 'existsSync').and.returnValue(true);
+      spyOn(fs, 'readFileSync').and.callFake((file, options) => {
+        if (file.indexOf('custom-name.js') > -1) {
+          return 'my-custom-content3';
+        } else {
+          return readFileSync(file, options);
+        }
+      });
+
+      let stubs = {};
+      stubs[path.join(process.cwd(), 'dist', 'bundles', 'test.umd.js')] = [
+        {
+          name: 'custom-name.js'
+        }
+      ];
+
+      const lib = proxyquire('../lib/assets', stubs);
+      const assetsWithContent = lib.getDistAssets(true, true);
+
+      expect(fs.existsSync).toHaveBeenCalledWith(
+        '/Users/tim.pepper/Development/bb_repos/skyux-deploy/dist/bundles/test.umd.js'
+      );
+      expect(assetsWithContent[0].content).toEqual('my-custom-content3');
+    });
+
+    it('should evaluate static client assets with no bundle', () => {
+      const readFileSync = fs.readFileSync;
+      spyOn(glob, 'sync').and.returnValue([]);
+      spyOn(fs, 'existsSync').and.returnValue(false);
+      spyOn(fs, 'readFileSync').and.callFake((file, options) => {
+        if (file.indexOf('custom-name.js') > -1) {
+          return 'my-custom-content3';
+        } else {
+          return readFileSync(file, options);
+        }
+      });
+
+      let stubs = {};
+      stubs[path.join(process.cwd(), 'dist', 'bundles', 'test.umd.js')] = [
+        {
+          name: 'custom-name.js'
+        }
+      ];
+
+      const lib = proxyquire('../lib/assets', stubs);
+      const assetsWithContent = lib.getDistAssets(true, true);
+
+      expect(fs.existsSync).toHaveBeenCalledWith(
+        '/Users/tim.pepper/Development/bb_repos/skyux-deploy/dist/metadata.json'
+      );
+      expect(assetsWithContent.length).toEqual(0);
+    });
   });
 
   describe('getEmittedAssets', () => {
