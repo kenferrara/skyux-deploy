@@ -30,12 +30,10 @@ describe('skyux-deploy', () => {
     require('../index')({
       _: ['junk-command'],
       name: 'spa-name',
-      version: 'spa-version',
-      skyuxVersion: 'skyux-version'
+      version: 'spa-version'
     });
     expect(logger.info).toHaveBeenCalledWith('SPA Name: %s', 'spa-name');
     expect(logger.info).toHaveBeenCalledWith('SPA Version: %s', 'spa-version');
-    expect(logger.info).toHaveBeenCalledWith('SKY UX Version: %s', 'skyux-version');
     expect(logger.info).toHaveBeenCalledWith('Unknown skyux-deploy command.');
   });
 
@@ -70,8 +68,7 @@ describe('skyux-deploy', () => {
     require('../index')({
       _: ['deploy'],
       name: 'spa-name',
-      version: 'spa-version',
-      skyuxVersion: 'skyux-version'
+      version: 'spa-version'
     });
 
   });
