@@ -90,12 +90,10 @@ describe('skyux-deploy lib deploy', () => {
   it('should create an entity and call registerAssetsToBlob', () => {
     lib({
       name: 'custom-name1',
-      version: 'custom-version1',
-      skyuxVersion: 'custom-skyux-version1'
+      version: 'custom-version1'
     });
     expect(assetsSettings.name).toEqual('custom-name1');
     expect(assetsSettings.version).toEqual('custom-version1');
-    expect(assetsSettings.skyuxVersion).toEqual('custom-skyux-version1');
   });
 
   it('should handle an error after calling registerEntityToBlob', (done) => {
@@ -113,13 +111,11 @@ describe('skyux-deploy lib deploy', () => {
     lib({
       name: 'custom-name2',
       version: 'custom-version2',
-      skyuxVersion: 'custom-skyux-version2',
       skyuxConfig: { test1: true },
       packageConfig: { test2: true }
     }).then(() => {
       expect(entity.PartitionKey).toEqual('custom-name2');
       expect(entity.RowKey).toEqual('custom-version2');
-      expect(entity.SkyUXVersion).toEqual('custom-skyux-version2');
       expect(entity.SkyUXConfig).toEqual(JSON.stringify({ test1: true }));
       expect(entity.PackageConfig).toEqual(JSON.stringify({ test2: true }));
       done();

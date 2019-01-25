@@ -54,9 +54,6 @@ describe('skyux-deploy lib settings', () => {
 
     expect(settings.name).toEqual('custom-name2');
     expect(settings.version).toEqual('');
-    expect(logger.error).toHaveBeenCalledWith(
-      'Unable to locate an installation of SKYUX2.'
-    );
   });
 
   function setupPackageJson(_requested) {
@@ -86,23 +83,5 @@ describe('skyux-deploy lib settings', () => {
     expect(logger.error).not.toHaveBeenCalled();
     return settings;
   }
-
-  it('should read the skyux version if it is installed (npm < 5)', () => {
-    const version = 'custom-skyux-version-npm3';
-    const settings = setupPackageJson({
-      spec: version
-    });
-
-    expect(settings.skyuxVersion).toEqual(version);
-  });
-
-  it('should read the skyux version if it is installed (npm >= 5)', () => {
-    const version = 'custom-skyux-version-npm5';
-    const settings = setupPackageJson({
-      rawSpec: version
-    });
-
-    expect(settings.skyuxVersion).toEqual(version);
-  });
 
 });
