@@ -21,7 +21,6 @@ function processArgv(argv) {
 
   logger.info('SPA Name: %s', options.name);
   logger.info('SPA Version: %s', options.version);
-  logger.info('SKY UX Version: %s', options.skyuxVersion);
 
   switch (argv._[0]) {
     case 'deploy':

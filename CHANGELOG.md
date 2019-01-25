@@ -1,6 +1,10 @@
+# 1.2.0 (2019-01-25)
+
+- Removed ability to log SKY UX version. [#31](https://github.com/blackbaud/skyux-deploy/pull/31)
+
 # 1.1.0 (2018-03-26)
 
-- Migrated all logging to use the `@blackbaud/skyux-logger` package. [#25](https://github.com/blackbaud/skyux-builder/pull/25)
+- Migrated all logging to use `@blackbaud/skyux-logger` package. [#25](https://github.com/blackbaud/skyux-builder/pull/25)
 - Bugfix for reading SKY UX version when using NPM 5. [#24](https://github.com/blackbaud/skyux-builder/pull/24)
 
 # 1.0.0 (2017-10-03)
@@ -9,8 +13,8 @@
 
 # 1.0.0-beta.5 (2017-06-02)
 
-- Fixed bug parsing `JSON` files when a BOM was present.
-- If `deploy` or `release` step fails, return a non-zero exit code.
+- Fixed bug parsing `JSON` files when BOM was present.
+- If `deploy` or `release` step fails, return non-zero exit code.
 
 # 1.0.0-beta.4 (2017-05-01)
 
@@ -26,7 +30,7 @@
 
 # 1.0.0-beta.1 (2017-01-13)
 
-- Deploying the `skyuxconfig.json` and `package.json` files.
+- Deploying `skyuxconfig.json` and `package.json` files.
 
 # 1.0.0-beta.0 (2017-01-05)
 
