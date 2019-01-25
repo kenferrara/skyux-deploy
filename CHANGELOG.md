@@ -1,3 +1,7 @@
+# 1.2.0 (2019-01-25)
+
+- Removed the ability to log the SKY UX version. [#31](https://github.com/blackbaud/skyux-deploy/pull/31)
+
 # 1.1.0 (2018-03-26)
 
 - Migrated all logging to use the `@blackbaud/skyux-logger` package. [#25](https://github.com/blackbaud/skyux-builder/pull/25)
