@@ -56,7 +56,7 @@ describe('skyux-deploy lib settings', () => {
     expect(settings.version).toEqual('');
   });
 
-  function setupPackageJson(_requested) {
+  function setupPackageJson(_requested, argv) {
     const skyuxInstalledPath = path.join(
       process.cwd(),
       'node_modules',
@@ -78,10 +78,9 @@ describe('skyux-deploy lib settings', () => {
     });
 
     const lib = require('../lib/settings');
-    const settings = lib.getSettings();
+    const settings = lib.getSettings(argv);
 
     expect(logger.error).not.toHaveBeenCalled();
     return settings;
   }
-
 });
