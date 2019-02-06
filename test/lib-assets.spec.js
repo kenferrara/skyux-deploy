@@ -84,6 +84,7 @@ describe('skyux-deploy lib assets', () => {
       const readFileSync = fs.readFileSync;
       spyOn(fs, 'existsSync').and.returnValue(true);
       spyOn(fs, 'readFileSync').and.callFake((file, options) => {
+
         if (file.indexOf('custom-name.js') > -1) {
           return 'my-custom-content3';
         } else {
@@ -106,6 +107,33 @@ describe('skyux-deploy lib assets', () => {
       expect(assetsWithoutContent[0].content).not.toBeDefined();
     });
 
+    it('should evaluate static client assets', () => {
+      const readFileSync = fs.readFileSync;
+
+      spyOn(glob, 'sync').and.returnValue([
+        path.join(process.cwd(), 'dist', 'bundles', 'test.umd.js')
+      ]);
+      spyOn(fs, 'readFileSync').and.callFake((file, options) => {
+        if (file.indexOf('test.umd.js') > -1) {
+          return 'my-custom-content3';
+        } else {
+          return readFileSync(file, options);
+        }
+      });
+
+      let stubs = {};
+      stubs[path.join(process.cwd(), 'dist', 'bundles', 'test.umd.js')] = [
+        {
+          name: 'custom-name.js'
+        }
+      ];
+
+      const lib = proxyquire('../lib/assets', stubs);
+
+      const assetsWithContent = lib.getDistAssets(true, true);
+
+      expect(assetsWithContent[0].content).toEqual('my-custom-content3');
+    });
   });
 
   describe('getEmittedAssets', () => {
