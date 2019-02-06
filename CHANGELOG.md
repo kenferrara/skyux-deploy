@@ -1,3 +1,7 @@
+# 1.3.0 (2019-02-06)
+
+- Added the `isStaticClient` flag. [#31](https://github.com/blackbaud/skyux-deploy/pull/30) Thanks [@Blackbaud-TimPepper](https://github.com/Blackbaud-TimPepper)!
+
 # 1.2.0 (2019-01-25)
 
 - Removed ability to log SKY UX version. [#31](https://github.com/blackbaud/skyux-deploy/pull/31)
