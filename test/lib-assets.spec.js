@@ -8,6 +8,12 @@ describe('skyux-deploy lib assets', () => {
   const glob = require('glob');
   const proxyquire = require('proxyquire').noCallThru();
 
+  beforeEach(() => {
+    spyOn(fs, 'statSync').and.returnValue({
+      size: 0
+    });
+  });
+
   it('should expose a getDistAssets method', () => {
     const lib = require('../lib/assets');
     expect(lib.getDistAssets).toBeDefined();
@@ -54,6 +60,8 @@ describe('skyux-deploy lib assets', () => {
 
       expect(assets[0].name).toContain('custom-name');
       expect(assets[0].sri).toEqual('sha384-' + sri);
+      expect(assets[0].size).toEqual(0);
+      expect(fs.statSync).toHaveBeenCalled();
     });
 
     it('should include content if argument supplied', () => {
