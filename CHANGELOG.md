@@ -1,3 +1,7 @@
+# 1.4.0 (2019-01-25)
+
+- Added `size` property for each script stored in table storage. [#39](https://github.com/blackbaud/skyux-deploy/pull/39)
+
 # 1.3.0 (2019-02-06)
 
 - Added `isStaticClient` flag. [#31](https://github.com/blackbaud/skyux-deploy/pull/30) Thanks [@Blackbaud-TimPepper](https://github.com/Blackbaud-TimPepper)!
