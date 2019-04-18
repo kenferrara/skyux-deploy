@@ -26,7 +26,6 @@ describe('skyux-deploy lib azure', () => {
     insertOrReplaceEntityArgs = {};
 
     mock('azure-storage', {
-      bobby: true,
       createBlobService: () => {
 
         return {
