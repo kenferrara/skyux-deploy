@@ -1,35 +1,65 @@
-/*jshint jasmine: true, node: true */
 'use strict';
 
 describe('skyux-deploy lib publish', () => {
 
   const mock = require('mock-require');
 
-  it('should create an entity and call registerEntityToTable', () => {
-    let settingsTest = false;
-    let entityTest = {};
+  let publishSpaMock;
+  let publishStaticMock;
+  let publish;
 
-    mock('../lib/azure', {
-      generator: {
-        String: s => s
-      },
-      registerEntityToTable: (settings, entity) => {
-        settingsTest = settings.test;
-        entityTest = entity;
-      }
-    });
+  beforeEach(() => {
+    publishSpaMock = jasmine.createSpy('publishSpa');
+    publishStaticMock = jasmine.createSpy('publishStatic');
 
-    require('../lib/publish')({
+    mock('../lib/publish-spa', publishSpaMock);
+    mock('../lib/publish-static', publishStaticMock);
+
+    publish = mock.reRequire('../lib/publish');
+  });
+
+  afterEach(() => {
+    mock.stopAll();
+  });
+
+  it('should publish as a SPA when settings.isStaticClient = false', () => {
+    publish({
+      azureStorageAccessKey: 'abc',
+      isStaticClient: false,
       name: 'custom-name',
-      version: 'custom-version',
-      test: true
+      version: 'custom-version'
     });
 
-    expect(settingsTest).toEqual(true);
-    expect(entityTest.PartitionKey).toEqual('custom-name');
-    expect(entityTest.RowKey).toEqual('__default');
-    expect(entityTest.Version).toEqual('custom-version');
-    mock.stop('../lib/azure');
+    expect(publishSpaMock).toHaveBeenCalledWith(
+      {
+        azureStorageAccessKey: 'abc',
+        isStaticClient: false,
+        name: 'custom-name',
+        version: 'custom-version'
+      }
+    );
+
+    expect(publishStaticMock).not.toHaveBeenCalled();
+  });
+
+  it('should publish as a static client when settings.isStaticClient = true', () => {
+    publish({
+      azureStorageAccessKey: 'abc',
+      isStaticClient: true,
+      name: 'custom-name',
+      version: 'custom-version'
+    });
+
+    expect(publishStaticMock).toHaveBeenCalledWith(
+      {
+        azureStorageAccessKey: 'abc',
+        isStaticClient: true,
+        name: 'custom-name',
+        version: 'custom-version'
+      }
+    );
+
+    expect(publishSpaMock).not.toHaveBeenCalled();
   });
 
 });

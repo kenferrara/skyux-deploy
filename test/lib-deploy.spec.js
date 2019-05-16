@@ -1,4 +1,3 @@
-/*jshint jasmine: true, node: true */
 'use strict';
 
 describe('skyux-deploy lib deploy', () => {
@@ -16,152 +15,133 @@ describe('skyux-deploy lib deploy', () => {
     file: 'full-path/my-image.png'
   };
 
+  let assetsMock;
+  let azureMock;
+  let deploySpaMock;
+  let deployStaticMock;
   let lib;
-  let assets;
-  let assetsSettings;
-  let assetsResolve;
-  let assetsReject;
-
-  let entity;
-  let entityResolve;
-  let entityReject;
 
   beforeEach(() => {
-    assets = [];
-    assetsSettings = {};
-    assetsResolve = false;
-    assetsReject = '';
-
-    entity = {};
-    entityResolve = false;
-    entityReject = '';
-
     spyOn(logger, 'error');
     spyOn(logger, 'info');
 
-    mock('../lib/azure', {
-      generator: {
-        String: s => s
-      },
-      registerAssetsToBlob: (s, a) => {
-        assetsSettings = s;
-        assets = a;
-        return new Promise((resolve, reject) => {
-          if (assetsResolve) {
-            resolve();
-          }
+    azureMock = {
+      registerAssetsToBlob: jasmine.createSpy('registerAssetsToBlob').and.returnValue(Promise.resolve())
+    };
 
-          if (assetsReject !== '') {
-            reject(assetsReject);
-          }
-        });
-      },
+    assetsMock = {
+      getDistAssets: jasmine.createSpy('getDistAssets').and.returnValue([distAsset]),
+      getEmittedAssets: jasmine.createSpy('getEmittedAssets').and.returnValue([emittedAsset])
+    };
 
-      registerEntityToTable: (s, e) => {
-        entity = e;
-        return new Promise((resolve, reject) => {
-          if (entityResolve) {
-            resolve();
-          }
+    deploySpaMock = jasmine.createSpy('deploySpa').and.returnValue(Promise.resolve());
+    deployStaticMock = jasmine.createSpy('deployStatic').and.returnValue(Promise.resolve());
 
-          if (entityReject !== '') {
-            reject(entityReject);
-          }
-        });
-      }
-    });
+    mock('../lib/azure', azureMock);
+    mock('../lib/assets', assetsMock);
+    mock('../lib/deploy-spa', deploySpaMock);
+    mock('../lib/deploy-static', deployStaticMock);
 
-    mock('../lib/assets', {
-      getDistAssets: () => ([distAsset]),
-      getEmittedAssets: () => ([emittedAsset])
-    });
-
-    lib = require('../lib/deploy');
+    lib = mock.reRequire('../lib/deploy');
   });
 
   afterEach(() => {
-    mock.stop('../lib/azure');
-    mock.stop('../lib/assets');
+    mock.stopAll();
   });
 
-  it('should create an entity and call registerAssetsToBlob', () => {
-    lib({
+  it('should call registerAssetsToBlob with the expected parameters', async () => {
+    await lib({
       name: 'custom-name1',
       version: 'custom-version1'
     });
-    expect(assetsSettings.name).toEqual('custom-name1');
-    expect(assetsSettings.version).toEqual('custom-version1');
-  });
 
-  it('should handle an error after calling registerEntityToBlob', (done) => {
-    assetsReject = 'custom-error1';
-    lib({}).catch((err) => {
-      expect(logger.error).toHaveBeenCalledWith(assetsReject);
-      expect(err).toEqual(assetsReject);
-      done();
-    });
-  });
-
-  it('should call registerEntityToTable if registerAssetsToBlob is successful', (done) => {
-    assetsResolve = true;
-    entityResolve = true;
-    lib({
-      name: 'custom-name2',
-      version: 'custom-version2',
-      skyuxConfig: { test1: true },
-      packageConfig: { test2: true }
-    }).then(() => {
-      expect(entity.PartitionKey).toEqual('custom-name2');
-      expect(entity.RowKey).toEqual('custom-version2');
-      expect(entity.SkyUXConfig).toEqual(JSON.stringify({ test1: true }));
-      expect(entity.PackageConfig).toEqual(JSON.stringify({ test2: true }));
-      done();
-    });
-
-  });
-
-  it('should handle an error after calling registerEntityToTable', (done) => {
-    assetsResolve = true;
-    entityReject = 'custom-error2';
-    lib({}).catch((err) => {
-      expect(logger.error).toHaveBeenCalledWith(entityReject);
-      expect(err).toEqual(entityReject);
-      done();
-    });
-  });
-
-  it('should display a message if registerEntityToTable is successful', (done) => {
-    assetsResolve = true;
-    entityResolve = true;
-    lib({}).then(() => {
-      expect(logger.info).toHaveBeenCalledWith('Successfully registered.');
-      done();
-    });
-  });
-
-  it('should concat the assets from getDistAssets and getEmittedAssets', (done) => {
-    assetsResolve = true;
-    entityResolve = true;
-    lib({}).then(() => {
-      expect(assets).toEqual([
+    expect(azureMock.registerAssetsToBlob).toHaveBeenCalledWith(
+      {
+        name: 'custom-name1',
+        version: 'custom-version1'
+      },
+      [
         distAsset,
         emittedAsset
-      ]);
-      done();
+      ]
+    );
+  });
+
+  it('should handle an error after calling registerEntityToBlob', async () => {
+    azureMock.registerAssetsToBlob.and.returnValue(Promise.reject('custom-error1'));
+
+    await expectAsync(lib({})).toBeRejectedWith('custom-error1');
+
+    expect(logger.error).toHaveBeenCalledWith('custom-error1');
+  });
+
+  it('should reject if there are no assets found', async () => {
+    assetsMock.getDistAssets.and.returnValue([]);
+    assetsMock.getEmittedAssets.and.returnValue([]);
+
+    await expectAsync(lib({})).toBeRejectedWith('Unable to locate any assets to deploy.');
+  });
+
+  describe('when isStaticClient = false', () => {
+    it('should call deploySpa if registerAssetsToBlob is successful', async () => {
+      const settings = {
+        azureStorageAccessKey: 'abc',
+        name: 'custom-name2',
+        version: 'custom-version2',
+        skyuxConfig: { test1: true },
+        packageConfig: { test2: true }
+      };
+
+      await lib(settings);
+
+      expect(deploySpaMock).toHaveBeenCalledWith(settings, [distAsset]);
+      expect(deployStaticMock).not.toHaveBeenCalled();
+    });
+
+    it('should handle an error after calling deploySpa', async () => {
+      deploySpaMock.and.returnValue(Promise.reject('custom-error2'));
+
+      await expectAsync(lib({})).toBeRejectedWith('custom-error2');
+
+      expect(logger.error).toHaveBeenCalledWith('custom-error2');
+    });
+
+    it('should display a message if deploySpa is successful', async () => {
+      await lib({});
+
+      expect(logger.info).toHaveBeenCalledWith('Successfully registered.');
     });
   });
 
-  it('should reject if there are no assets found', (done) => {
-    mock('../lib/assets', {
-      getDistAssets: () => ([]),
-      getEmittedAssets: () => ([])
+  describe('when isStaticClient = true', () => {
+    it('should call deployStatic if registerAssetsToBlob is successful', async () => {
+      const settings = {
+        azureStorageAccessKey: 'abc',
+        name: 'custom-name2',
+        isStaticClient: true,
+        version: 'custom-version2',
+        skyuxConfig: { test1: true },
+        packageConfig: { test2: true }
+      };
+
+      await lib(settings);
+
+      expect(deployStaticMock).toHaveBeenCalledWith(settings, [distAsset]);
+      expect(deploySpaMock).not.toHaveBeenCalled();
     });
 
-    lib = mock.reRequire('../lib/deploy');
+    it('should handle an error after calling deployStatic', async () => {
+      deployStaticMock.and.returnValue(Promise.reject('custom-error2'));
 
-    lib({}).catch(err => {
-      expect(err).toBe('Unable to locate any assets to deploy.');
-      done();
+      await expectAsync(lib({isStaticClient: true})).toBeRejectedWith('custom-error2');
+
+      expect(logger.error).toHaveBeenCalledWith('custom-error2');
+    });
+
+    it('should display a message if deploySpa is successful', async () => {
+      await lib({isStaticClient: true});
+
+      expect(logger.info).toHaveBeenCalledWith('Successfully registered.');
     });
   });
 
