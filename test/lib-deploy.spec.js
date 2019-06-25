@@ -94,7 +94,7 @@ describe('skyux-deploy lib deploy', () => {
 
       await lib(settings);
 
-      expect(deploySpaMock).toHaveBeenCalledWith(settings, [distAsset]);
+      expect(deploySpaMock).toHaveBeenCalledWith(settings);
       expect(deployStaticMock).not.toHaveBeenCalled();
     });
 
@@ -126,7 +126,7 @@ describe('skyux-deploy lib deploy', () => {
 
       await lib(settings);
 
-      expect(deployStaticMock).toHaveBeenCalledWith(settings, [distAsset]);
+      expect(deployStaticMock).toHaveBeenCalledWith(settings);
       expect(deploySpaMock).not.toHaveBeenCalled();
     });
 
