@@ -1,3 +1,7 @@
+# 1.9.0 (2020-10-09)
+
+- Updated the `baseUrl` used in the `portal`. [#73](https://github.com/blackbaud/skyux-deploy/pull/73)
+
 # 1.8.1 (2020-09-14)
 
 - Updated the `content-type` used for JavaScript files from `application/x-javascript` to `application/javascript`. [#72](https://github.com/blackbaud/skyux-deploy/pull/72)
